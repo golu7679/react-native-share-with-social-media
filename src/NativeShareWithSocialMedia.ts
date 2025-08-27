@@ -1,6 +1,6 @@
 import type { TurboModule } from 'react-native';
 import { TurboModuleRegistry } from 'react-native';
-export type SocialMediaType = 'instagramDm' | 'snapchat' | 'telegram' | 'sms' | 'whatsapp';
+export type SocialMediaType = 'instagramDm' | 'snapchat' | 'telegram' | 'sms' | 'whatsapp' | "tiktok";
 
 
 export interface Spec extends TurboModule {

@@ -4,12 +4,13 @@ import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.net.toUri
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.WritableMap
+import com.facebook.react.bridge.ReactContext
 import com.facebook.react.module.annotations.ReactModule
 
 data class PackageItem(
@@ -31,6 +32,9 @@ object PackageListType {
   val TELEGRAM = PackageItem(
     packageName = "org.telegram.messenger", handlingClass = ""
   )
+  val TIKTOK = PackageItem(
+    packageName = "com.zhiliaoapp.musically", handlingClass = ""
+  )
 }
 
 
@@ -51,7 +55,10 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
           if (!isAppInstalled(
               reactContext, PackageListType.INSTAGRAM.packageName
             )
-          ) promise.reject("NOT_INSTALLED", "App is not installed")
+          ) {
+            openAppInPlayStore(reactContext, PackageListType.INSTAGRAM.packageName)
+            return
+          }
 
           val intentDirect = Intent(Intent.ACTION_SEND)
           intentDirect.setComponent(
@@ -64,7 +71,10 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
           intentDirect.putExtra(Intent.EXTRA_TEXT, text)
 
           if (reactContext.packageManager.resolveActivity(intentDirect, 0) == null) {
-            promise.reject("Not handled", "Instagram Direct share handler is not available")
+            promise.reject("NOT_INSTALLED", Arguments.createMap().apply {
+              putString("error", "Instagram Direct share handler is not available")
+              putInt("code", 500)
+            })
           }
 
           startActivity(reactContext, intentDirect, null)
@@ -74,7 +84,10 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
           if (!isAppInstalled(
               reactContext, PackageListType.SNAPCHAT.packageName
             )
-          ) promise.reject("NOT_INSTALLED", "App is not installed")
+          ) {
+            openAppInPlayStore(reactContext, PackageListType.SNAPCHAT.packageName)
+            return
+          }
 
           val intentDirect = Intent(Intent.ACTION_SEND)
           intentDirect.type = "text/plain"
@@ -83,7 +96,10 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
           intentDirect.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
           if (reactContext.packageManager.resolveActivity(intentDirect, 0) == null) {
-            promise.reject("Not handled", "Snapchat Direct share handler is not available")
+            promise.reject("NOT_INSTALLED", Arguments.createMap().apply {
+              putString("error", "Snapchat is not installed")
+              putInt("code", 500)
+            })
           }
           startActivity(reactContext, intentDirect, null)
         }
@@ -93,7 +109,10 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
           if (!isAppInstalled(
               reactContext, PackageListType.TELEGRAM.packageName
             )
-          ) promise.reject("NOT_INSTALLED", "App is not installed")
+          ) {
+            openAppInPlayStore(reactContext, PackageListType.TELEGRAM.packageName)
+            return
+          }
 
           val intentDirect = Intent(Intent.ACTION_SEND)
 
@@ -102,7 +121,10 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
           intentDirect.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
           intentDirect.putExtra(Intent.EXTRA_TEXT, text)
           if (reactContext.packageManager.resolveActivity(intentDirect, 0) == null) {
-            promise.reject("Not handled", "Telegram share handler is not available")
+            promise.reject("NOT_INSTALLED", Arguments.createMap().apply {
+              putString("error", "Telegram is not installed")
+              putInt("code", 500)
+            })
           }
           startActivity(reactContext, intentDirect, null)
         }
@@ -114,46 +136,98 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
           intentDirect.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
           if (reactContext.packageManager.resolveActivity(intentDirect, 0) == null) {
-            promise.reject("Not handled", "SMS share handler is not available")
+            promise.reject("NOT_INSTALLED", Arguments.createMap().apply {
+              putString("error", "SMS share handler is not available")
+              putInt("code", 500)
+            })
           }
 
           startActivity(reactContext, intentDirect, null)
         }
 
         "whatsapp" -> {
+
+          if (!isAppInstalled(
+              reactContext, PackageListType.WHATSAPP.packageName
+            )
+          ) {
+            openAppInPlayStore(reactContext, PackageListType.WHATSAPP.packageName)
+            return
+          }
+
           val intentDirect = Intent(Intent.ACTION_SEND)
           intentDirect.setType("text/plain")
           intentDirect.setPackage(PackageListType.WHATSAPP.packageName)
           intentDirect.putExtra(Intent.EXTRA_TEXT, text)
-//          intentDirect.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-          val errorMap: WritableMap = Arguments.createMap().apply {
-            putString("error", "Something went wrong")
-            putInt("code", 500)
-            putBoolean("retryable", false)
-          }
+          intentDirect.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
           if (reactContext.packageManager.resolveActivity(intentDirect, 0) == null) {
-            promise.reject("CUSTOM_ERROR", "Whatsapp Direct share handler is not available", errorMap)
+            promise.reject("NOT_INSTALLED", Arguments.createMap().apply {
+              putString("error", "Whatsapp is not installed")
+              putInt("code", 500)
+            })
           }
 
           startActivity(reactContext,intentDirect, null)
         }
 
-        else -> promise.reject("INVALID_TYPE", "Invalid type provided")
+        "tiktok" -> {
+          if (!isAppInstalled(
+              reactContext, PackageListType.TIKTOK.packageName
+            )
+          ) {
+            openAppInPlayStore(reactContext, PackageListType.TIKTOK.packageName)
+            return
+          }
+
+          val intentDirect = Intent(Intent.ACTION_SEND)
+          intentDirect.setType("text/plain")
+          intentDirect.setPackage(PackageListType.TIKTOK.packageName)
+          intentDirect.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+          intentDirect.putExtra(Intent.EXTRA_TEXT, text)
+
+          if (reactContext.packageManager.resolveActivity(intentDirect, 0) == null) {
+            promise.reject("NOT_INSTALLED", Arguments.createMap().apply {
+              putString("error", "TikTok share handler is not available")
+              putInt("code", 500)
+            })
+          }
+          startActivity(reactContext, intentDirect, null)
+        }
+
+        else -> promise.reject("INVALID_TYPE", Arguments.createMap().apply {
+          putString("error", "Invalid type provided")
+          putInt("code", 500)
+        })
       }
     } catch (_: ActivityNotFoundException) {
-      promise.reject("SOMETHING_WENT_WRONG", "yes yes ")
+      promise.reject("SOMETHING_WENT_WRONG", Arguments.createMap().apply {
+        putString("error", "Something went wrong")
+        putInt("code", 500)
+      })
     }
   }
 
-  private fun isAppInstalled(context: Context, packageName: String): Boolean {
-
+  private fun isAppInstalled(context: ReactContext, packageName: String): Boolean {
     return try {
-      context.packageManager.getPackageInfo(packageName, 0)
+      context.packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
       true
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+      println(e)
       false
+    }
+  }
+
+  private fun openAppInPlayStore(context: Context, packageName: String) {
+    try {
+      val marketIntent = Intent(Intent.ACTION_VIEW, "market://details?id=$packageName".toUri())
+      marketIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+      context.startActivity(marketIntent)
+    } catch (e: ActivityNotFoundException) {
+      val webIntent = Intent(Intent.ACTION_VIEW,
+        "https://play.google.com/store/apps/details?id=$packageName".toUri())
+      webIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+      context.startActivity(webIntent)
     }
   }
 
