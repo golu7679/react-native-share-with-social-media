@@ -1,5 +1,6 @@
-import ShareWithSocialMedia, { type SocialMediaType } from './NativeShareWithSocialMedia';
-
+import ShareWithSocialMedia, {
+  type SocialMediaType,
+} from './NativeShareWithSocialMedia';
 
 // Common method to share content
 export const open = (type: SocialMediaType, message: string): Promise<void> => {
