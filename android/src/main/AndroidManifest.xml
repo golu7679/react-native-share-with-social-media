@@ -5,7 +5,6 @@
     <package android:name="com.snapchat.android" />
     <package android:name="com.instagram.android" />
     <package android:name="org.telegram.messenger" />
-    <package android:name="com.zhiliaoapp.musically" />
    </queries>
 
 </manifest>

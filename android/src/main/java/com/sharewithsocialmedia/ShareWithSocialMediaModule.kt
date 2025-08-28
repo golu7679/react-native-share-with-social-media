@@ -32,9 +32,6 @@ object PackageListType {
   val TELEGRAM = PackageItem(
     packageName = "org.telegram.messenger", handlingClass = ""
   )
-  val TIKTOK = PackageItem(
-    packageName = "com.zhiliaoapp.musically", handlingClass = ""
-  )
 }
 
 
@@ -169,30 +166,6 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
           }
 
           startActivity(reactContext,intentDirect, null)
-        }
-
-        "tiktok" -> {
-          if (!isAppInstalled(
-              reactContext, PackageListType.TIKTOK.packageName
-            )
-          ) {
-            openAppInPlayStore(reactContext, PackageListType.TIKTOK.packageName)
-            return
-          }
-
-          val intentDirect = Intent(Intent.ACTION_SEND)
-          intentDirect.setType("text/plain")
-          intentDirect.setPackage(PackageListType.TIKTOK.packageName)
-          intentDirect.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-          intentDirect.putExtra(Intent.EXTRA_TEXT, text)
-
-          if (reactContext.packageManager.resolveActivity(intentDirect, 0) == null) {
-            promise.reject("NOT_INSTALLED", Arguments.createMap().apply {
-              putString("error", "TikTok share handler is not available")
-              putInt("code", 500)
-            })
-          }
-          startActivity(reactContext, intentDirect, null)
         }
 
         else -> promise.reject("INVALID_TYPE", Arguments.createMap().apply {
