@@ -1,5 +1,9 @@
 #import "ShareWithSocialMedia.h"
-#import "ShareWithSocialMedia-Swift.h"
+#if __has_include(<ShareWithSocialMedia/ShareWithSocialMedia-Swift.h>)
+    #import <ShareWithSocialMedia/ShareWithSocialMedia-Swift.h>
+#else
+  #import "ShareWithSocialMedia-Swift.h"
+#endif
 
 @implementation ShareWithSocialMedia
 RCT_EXPORT_MODULE()

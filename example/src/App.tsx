@@ -38,11 +38,6 @@ export default function App() {
         <Text>Click to whatsapp</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        onPress={() => open('tiktok', 'Tiktok screen redirection')}
-      >
-        <Text>Tiktok</Text>
-      </TouchableOpacity>
     </View>
   );
 }

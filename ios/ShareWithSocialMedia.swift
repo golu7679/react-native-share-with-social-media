@@ -16,7 +16,7 @@ public class ShareWithSocialMediax: NSObject {
       case snapchat = "snapchat"
       case whatsapp = "whatsapp"
       case telegram = "tg"
-      case tiktok = "snssdk1128"
+    //   case tiktok = "snssdk1128"
       
       var urlScheme: String {
           return "\(rawValue)://"
@@ -28,7 +28,7 @@ public class ShareWithSocialMediax: NSObject {
           case .snapchat: return "com.toyopagroup.picaboo"
           case .whatsapp: return "net.whatsapp.WhatsApp"
           case .telegram: return "ph.telegra.Telegraph"
-          case .tiktok: return "com.zhiliaoapp.musically"
+        //   case .tiktok: return "com.zhiliaoapp.musically"
           }
       }
       
@@ -38,7 +38,7 @@ public class ShareWithSocialMediax: NSObject {
           case .snapchat: return "447188370"
           case .whatsapp: return "310633997"
           case .telegram: return "686449807"
-          case .tiktok: return "835599320"
+//          case .tiktok: return "835599320"
           }
       }
       
@@ -121,20 +121,20 @@ public class ShareWithSocialMediax: NSObject {
                   reject("NOT_INSTALLED", "App is not installed. Redirected to App Store.", nil)
               }
               
-          case "tiktok":
-              if isAppInstalledWithStore(app: .tiktok) {
+        //   case "tiktok":
+        //       if isAppInstalledWithStore(app: .tiktok) {
                 
-                guard let encodedText = textStr.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-                      let url = URL(string: "snssdk1233://share?text=\(encodedText)") else {
-                    reject("NOT_INSTALLED", "Whatsapp is not installed", nil)
-                    return
-                }
+        //         guard let encodedText = textStr.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+        //               let url = URL(string: "snssdk1233://share?text=\(encodedText)") else {
+        //             reject("NOT_INSTALLED", "Whatsapp is not installed", nil)
+        //             return
+        //         }
 
-                  UIApplication.shared.open(url)
-              } else {
-                  openAppStore(for: .tiktok)
-                  reject("NOT_INSTALLED", "App is not installed. Redirected to App Store.", nil)
-              }
+        //           UIApplication.shared.open(url)
+        //       } else {
+        //           openAppStore(for: .tiktok)
+        //           reject("NOT_INSTALLED", "App is not installed. Redirected to App Store.", nil)
+        //       }
               
           default:
               reject("INVALID_TYPE", "Invalid type provided", nil)
