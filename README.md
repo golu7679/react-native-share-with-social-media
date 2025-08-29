@@ -13,12 +13,43 @@ npm install react-native-share-with-social-media
 ## Usage
 
 
-```js
-import { multiply } from 'react-native-share-with-social-media';
+```jsx
+import { open } from 'react-native-share-with-social-media';
 
-// ...
+// Open a specific app with a message
+open('whatsapp', 'This is business')
+  .then(() => console.log('Shared successfully'))
+  .catch((error) => console.log('Error sharing:', error));
+```
 
-const result = multiply(3, 7);
+## Setup
+
+### iOS
+
+Add the following to your `Info.plist` file to enable URL schemes for different social media apps:
+
+```xml
+<key>LSApplicationQueriesSchemes</key>
+<array>
+  <string>whatsapp</string>
+  <string>instagram</string>
+  <string>twitter</string>
+  <string>snapchat</string>
+  <string>tg</string>
+</array>
+```
+
+### Android
+
+Add the following queries to your `AndroidManifest.xml` file inside the `<manifest>` tag:
+
+```xml
+<queries>
+  <package android:name="com.whatsapp" />
+  <package android:name="com.snapchat.android" />
+  <package android:name="com.instagram.android" />
+  <package android:name="org.telegram.messenger" />
+</queries>
 ```
 
 
@@ -27,6 +58,12 @@ const result = multiply(3, 7);
 - [Development workflow](CONTRIBUTING.md#development-workflow)
 - [Sending a pull request](CONTRIBUTING.md#sending-a-pull-request)
 - [Code of conduct](CODE_OF_CONDUCT.md)
+
+## Support
+
+Encountered an issue or have a question? Feel free to [open an issue](https://github.com/yourusername/react-native-share-with-social-media/issues) on GitHub. 
+
+Have an idea for a new feature or want to contribute to this project? I'm always open to learning and implementing new things! Open a ticket to discuss your ideas or submit a pull request.
 
 ## License
 
