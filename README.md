@@ -1,6 +1,6 @@
 # react-native-share-with-social-media
 
-React native
+This package makes it super easy to add a one-click share function for social media platforms — hassle-free, with no extra pages or popups. It supports SMS, Instagram, Telegram, WhatsApp, and Snapchat (Android only)
 
 ## Installation
 
@@ -25,6 +25,10 @@ open('whatsapp', 'This is business')
 ## Setup
 
 ### iOS
+
+```bash
+cd ios/ && pod install
+```
 
 Add the following to your `Info.plist` file to enable URL schemes for different social media apps:
 
