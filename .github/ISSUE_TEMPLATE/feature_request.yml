@@ -14,10 +14,9 @@ body:
       multiple: false
       label: What is the feature request for?
       options:
-        - The core library
-        - discord.ext.commands
-        - discord.ext.tasks
-        - The documentation
+        - Implementation for the new app
+        - Add-on for the existing method
+        - Documentation
     validations:
       required: true
   - type: textarea
