@@ -1,6 +1,6 @@
 # react-native-share-with-social-media
 
-This package makes it super easy to add a one-click share function for social media platforms — hassle-free, with no extra pages or popups. It supports SMS, Instagram, Telegram, WhatsApp, and Snapchat (Android only)
+This package makes it super easy to add a one-click share function for social media platforms — hassle-free, with no extra pages or popups. It supports SMS, Instagram, Telegram, WhatsApp, and Snapchat.
 
 ## Installation
 
