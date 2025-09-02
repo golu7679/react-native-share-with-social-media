@@ -1,6 +1,6 @@
 {
   "name": "react-native-share-with-social-media",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "React native",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",

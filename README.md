@@ -9,6 +9,10 @@ This package makes it super easy to add a one-click share function for social me
 npm install react-native-share-with-social-media
 ```
 
+## Important Note for Snapchat
+
+For Snapchat sharing to work, ensure you provide a valid URL. The share functionality requires a properly formatted URL to open the share screen.
+
 
 ## Usage
 

@@ -1,8 +1,23 @@
-import { Text, View, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
-import { open, type SocialMediaType } from 'react-native-share-with-social-media';
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+} from 'react-native';
+import {
+  open,
+  type SocialMediaType,
+} from 'react-native-share-with-social-media';
 
-
-const SocialButton = ({ onPress, label }: { onPress: () => void; label: string }) => (
+const SocialButton = ({
+  onPress,
+  label,
+}: {
+  onPress: () => void;
+  label: string;
+}) => (
   <TouchableOpacity style={styles.button} onPress={onPress} activeOpacity={0.7}>
     <Text style={styles.buttonText}>{label}</Text>
   </TouchableOpacity>
@@ -10,8 +25,9 @@ const SocialButton = ({ onPress, label }: { onPress: () => void; label: string }
 
 export default function App() {
   const handleShare = (platform: SocialMediaType) => {
-    open(platform, 'Check out this amazing content!')
-      .catch((e) => console.log('Error sharing:', e));
+    open(platform, 'https://github.com/golu7679').catch((e) =>
+      console.log('Error sharing:', e)
+    );
   };
 
   return (
@@ -20,28 +36,28 @@ export default function App() {
         <Text style={styles.title}>Share With</Text>
         <Text style={styles.subtitle}>Select a platform to share</Text>
       </View>
-      
+
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <SocialButton
           onPress={() => handleShare('instagramDm' as SocialMediaType)}
           label="Share on Instagram"
         />
-        
+
         <SocialButton
           onPress={() => handleShare('whatsapp' as SocialMediaType)}
           label="Share on WhatsApp"
         />
-        
+
         <SocialButton
           onPress={() => handleShare('telegram' as SocialMediaType)}
           label="Share on Telegram"
         />
-        
+
         <SocialButton
           onPress={() => handleShare('snapchat' as SocialMediaType)}
           label="Share on Snapchat"
         />
-        
+
         <SocialButton
           onPress={() => handleShare('sms' as SocialMediaType)}
           label="Share via SMS"

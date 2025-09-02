@@ -72,11 +72,12 @@ public class ShareWithSocialMediax: NSObject {
               
           case "snapchat":
               if isAppInstalledWithStore(app: .snapchat) {
-                  guard let url = URL(string: "snapchat://camera") else {
+                  guard  let encodedText = textStr.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                         let url = URL(string: "https://www.snapchat.com/share?link=\(encodedText)") else {
                       reject("NOT_INSTALLED", "Snapchat is not installed", nil)
                       return
                   }
-                  UIApplication.shared.open(url)
+                UIApplication.shared.open(url)
               } else {
                   openAppStore(for: .snapchat)
                   reject("NOT_INSTALLED", "App is not installed. Redirected to App Store.", nil)
