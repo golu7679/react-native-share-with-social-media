@@ -85,7 +85,7 @@ cd ios/ && pod install
 </queries>
 ```
 
-2.  **FileProvider**: Ensure the library has permission to share local files. The library includes a default FileProvider with the authority `${applicationId}.fileprovider`. No additional setup is usually required for standard file paths.
+2.  **FileProvider**: Local files are shared through a FileProvider the library declares for you, under the authority `${applicationId}.sharewithsocialmedia.fileprovider`. The suffix is library-specific so it cannot clash with a `.fileprovider` your app or another dependency already declares. No additional setup is required.
 
 ## Constants
 

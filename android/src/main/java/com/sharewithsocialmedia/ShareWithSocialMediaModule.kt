@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.core.content.ContextCompat.startActivity
+import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
@@ -55,13 +56,7 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
     try {
       when (type) {
         "instagramDm" -> {
-          if (!isAppInstalled(
-              reactContext, PackageListType.INSTAGRAM.packageName
-            )
-          ) {
-            openAppInPlayStore(reactContext, PackageListType.INSTAGRAM.packageName)
-            return
-          }
+          if (!requireApp(PackageListType.INSTAGRAM.packageName, "Instagram", promise)) return
 
           val intentDirect = Intent(Intent.ACTION_SEND)
           intentDirect.setComponent(
@@ -73,63 +68,31 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
           intentDirect.type = "text/plain"
           intentDirect.putExtra(Intent.EXTRA_TEXT, text)
 
-          if (reactContext.packageManager.resolveActivity(intentDirect, 0) == null) {
-            promise.reject("NOT_INSTALLED", Arguments.createMap().apply {
-              putString("error", "Instagram Direct share handler is not available")
-              putInt("code", 500)
-            })
-          }
-
-          startActivity(reactContext, intentDirect, null)
+          launch(intentDirect, "Instagram Direct share handler is not available", promise)
         }
 
         "snapchat" -> {
-          if (!isAppInstalled(
-              reactContext, PackageListType.SNAPCHAT.packageName
-            )
-          ) {
-            openAppInPlayStore(reactContext, PackageListType.SNAPCHAT.packageName)
-            return
-          }
+          if (!requireApp(PackageListType.SNAPCHAT.packageName, "Snapchat", promise)) return
 
           val intentDirect = Intent(Intent.ACTION_SEND)
           intentDirect.type = "text/plain"
           intentDirect.putExtra(Intent.EXTRA_TEXT, text)
-          intentDirect.setPackage("com.snapchat.android")
+          intentDirect.setPackage(PackageListType.SNAPCHAT.packageName)
           intentDirect.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-          if (reactContext.packageManager.resolveActivity(intentDirect, 0) == null) {
-            promise.reject("NOT_INSTALLED", Arguments.createMap().apply {
-              putString("error", "Snapchat is not installed")
-              putInt("code", 500)
-            })
-          }
-          startActivity(reactContext, intentDirect, null)
+          launch(intentDirect, "Snapchat is not installed", promise)
         }
 
         "telegram" -> {
-
-          if (!isAppInstalled(
-              reactContext, PackageListType.TELEGRAM.packageName
-            )
-          ) {
-            openAppInPlayStore(reactContext, PackageListType.TELEGRAM.packageName)
-            return
-          }
+          if (!requireApp(PackageListType.TELEGRAM.packageName, "Telegram", promise)) return
 
           val intentDirect = Intent(Intent.ACTION_SEND)
-
           intentDirect.setType("text/plain")
           intentDirect.setPackage(PackageListType.TELEGRAM.packageName)
           intentDirect.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
           intentDirect.putExtra(Intent.EXTRA_TEXT, text)
-          if (reactContext.packageManager.resolveActivity(intentDirect, 0) == null) {
-            promise.reject("NOT_INSTALLED", Arguments.createMap().apply {
-              putString("error", "Telegram is not installed")
-              putInt("code", 500)
-            })
-          }
-          startActivity(reactContext, intentDirect, null)
+
+          launch(intentDirect, "Telegram is not installed", promise)
         }
 
         "sms" -> {
@@ -138,25 +101,11 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
           intentDirect.putExtra("sms_body", text)
           intentDirect.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-          if (reactContext.packageManager.resolveActivity(intentDirect, 0) == null) {
-            promise.reject("NOT_INSTALLED", Arguments.createMap().apply {
-              putString("error", "SMS share handler is not available")
-              putInt("code", 500)
-            })
-          }
-
-          startActivity(reactContext, intentDirect, null)
+          launch(intentDirect, "SMS share handler is not available", promise)
         }
 
         "whatsapp" -> {
-
-          if (!isAppInstalled(
-              reactContext, PackageListType.WHATSAPP.packageName
-            )
-          ) {
-            openAppInPlayStore(reactContext, PackageListType.WHATSAPP.packageName)
-            return
-          }
+          if (!requireApp(PackageListType.WHATSAPP.packageName, "Whatsapp", promise)) return
 
           val intentDirect = Intent(Intent.ACTION_SEND)
           intentDirect.setType("text/plain")
@@ -164,27 +113,39 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
           intentDirect.putExtra(Intent.EXTRA_TEXT, text)
           intentDirect.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-          if (reactContext.packageManager.resolveActivity(intentDirect, 0) == null) {
-            promise.reject("NOT_INSTALLED", Arguments.createMap().apply {
-              putString("error", "Whatsapp is not installed")
-              putInt("code", 500)
-            })
-          }
-
-          startActivity(reactContext,intentDirect, null)
+          launch(intentDirect, "Whatsapp is not installed", promise)
         }
 
-        else -> promise.reject("INVALID_TYPE", Arguments.createMap().apply {
-          putString("error", "Invalid type provided")
-          putInt("code", 500)
-        })
+        else -> promise.reject("INVALID_TYPE", errorMap("Invalid type provided"))
       }
     } catch (_: ActivityNotFoundException) {
-      promise.reject("SOMETHING_WENT_WRONG", Arguments.createMap().apply {
-        putString("error", "Something went wrong")
-        putInt("code", 500)
-      })
+      promise.reject("SOMETHING_WENT_WRONG", errorMap("Something went wrong"))
     }
+  }
+
+  private fun errorMap(message: String) = Arguments.createMap().apply {
+    putString("error", message)
+    putInt("code", 500)
+  }
+
+  /**
+   * Rejects and sends the user to the Play Store when [packageName] is missing.
+   * Returns true when the caller may continue.
+   */
+  private fun requireApp(packageName: String, label: String, promise: Promise): Boolean {
+    if (isAppInstalled(reactContext, packageName)) return true
+    openAppInPlayStore(reactContext, packageName)
+    promise.reject("NOT_INSTALLED", errorMap("$label is not installed. Redirected to Play Store."))
+    return false
+  }
+
+  private fun launch(intent: Intent, unavailableMessage: String, promise: Promise) {
+    if (reactContext.packageManager.resolveActivity(intent, 0) == null) {
+      promise.reject("NOT_INSTALLED", errorMap(unavailableMessage))
+      return
+    }
+    startActivity(reactContext, intent, null)
+    promise.resolve(null)
   }
 
   override fun shareStory(options: ReadableMap?, promise: Promise) {
@@ -193,10 +154,7 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
       return
     }
 
-    if (!isAppInstalled(reactContext, PackageListType.INSTAGRAM.packageName)) {
-      openAppInPlayStore(reactContext, PackageListType.INSTAGRAM.packageName)
-      return
-    }
+    if (!requireApp(PackageListType.INSTAGRAM.packageName, "Instagram", promise)) return
 
     thread {
       try {
@@ -272,6 +230,14 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
           return@thread
         }
 
+        // FLAG_GRANT_READ_URI_PERMISSION only covers intent.data, never URIs passed as
+        // extras, so the sticker has to be granted to Instagram explicitly.
+        listOfNotNull(primaryUri, stickerUri).forEach { uri ->
+          reactContext.grantUriPermission(
+            PackageListType.INSTAGRAM.packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
+          )
+        }
+
         startActivity(reactContext, intent, null)
         promise.resolve(null)
       } catch (e: Exception) {
@@ -280,54 +246,52 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
     }
   }
 
+  private fun contentUriFor(file: File): Uri = FileProvider.getUriForFile(
+    reactContext, "${reactContext.packageName}$FILE_PROVIDER_SUFFIX", file
+  )
+
   private fun resolveImageUri(imagePath: String): Uri {
     if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
       return downloadImageToCache(imagePath)
     }
 
     if (imagePath.startsWith("content://")) {
-      return Uri.parse(imagePath)
+      return imagePath.toUri()
     }
 
-    val cleanPath = imagePath.replace("file://", "")
-    val file = File(cleanPath)
+    val file = File(imagePath.replace("file://", ""))
 
     return try {
-      androidx.core.content.FileProvider.getUriForFile(
-        reactContext,
-        "${reactContext.packageName}.fileprovider",
-        file
-      )
+      contentUriFor(file)
     } catch (e: Exception) {
       throw Exception("[ShareWithSocialMedia] Could not resolve file path: $imagePath. Error: ${e.message}")
     }
   }
 
   private fun downloadImageToCache(urlStr: String): Uri {
-    val url = URL(urlStr)
-    val connection = url.openConnection() as HttpURLConnection
+    val connection = URL(urlStr).openConnection() as HttpURLConnection
     connection.connectTimeout = 10000
     connection.readTimeout = 10000
-    connection.connect()
 
-    if (connection.responseCode != HttpURLConnection.HTTP_OK) {
-      throw Exception("[ShareWithSocialMedia] Failed to download image. Response code: ${connection.responseCode}")
-    }
+    try {
+      connection.connect()
 
-    val fileName = "share_story_temp_${System.currentTimeMillis()}.jpg"
-    val cacheFile = File(reactContext.cacheDir, fileName)
-
-    connection.inputStream.use { input ->
-      cacheFile.outputStream().use { output ->
-        input.copyTo(output)
+      if (connection.responseCode != HttpURLConnection.HTTP_OK) {
+        throw Exception("[ShareWithSocialMedia] Failed to download image. Response code: ${connection.responseCode}")
       }
-    }
 
-    return androidx.core.content.FileProvider.getUriForFile(
-      reactContext,
-      "${reactContext.packageName}.fileprovider",
-      cacheFile
-    )
+      val cacheFile = File(reactContext.cacheDir, "share_story_temp_${System.currentTimeMillis()}")
+
+      connection.inputStream.use { input ->
+        cacheFile.outputStream().use { output ->
+          input.copyTo(output)
+        }
+      }
+
+      return contentUriFor(cacheFile)
+    } finally {
+      connection.disconnect()
+    }
   }
 
   private fun isAppInstalled(context: ReactContext, packageName: String): Boolean {
@@ -355,5 +319,12 @@ class ShareWithSocialMediaModule(var reactContext: ReactApplicationContext) :
 
   companion object {
     const val NAME = "ShareWithSocialMedia"
+
+    /**
+     * Appended to the host app's package id. Deliberately library-specific: a plain
+     * ".fileprovider" collides with the authority most apps already declare, and two
+     * providers sharing an authority fail the manifest merge.
+     */
+    const val FILE_PROVIDER_SUFFIX = ".sharewithsocialmedia.fileprovider"
   }
 }
