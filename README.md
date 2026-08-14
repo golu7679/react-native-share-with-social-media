@@ -1,55 +1,76 @@
 # react-native-share-with-social-media
 
-This package makes it super easy to add a one-click share function for social media platforms — hassle-free, with no extra pages or popups. It supports SMS, Instagram, Telegram, WhatsApp, and Snapchat.
+A lightweight, one-click share library for React Native social media platforms — hassle-free, with no extra pages or popups. Supports SMS, Instagram (Direct & Stories), Telegram, WhatsApp, and Snapchat.
 
 ## Installation
-
 
 ```sh
 npm install react-native-share-with-social-media
 ```
 
-## Important Note for Snapchat
+## Features
 
-For Snapchat sharing to work, ensure you provide a valid URL. The share functionality requires a properly formatted URL to open the share screen.
-
+- **One-click sharing**: No intermediate UI.
+- **TurboModule Support**: Ready for the New Architecture.
+- **Instagram Stories Support**: Share images with link stickers.
+- **Type-safe API**: Constants and interfaces for better DX.
 
 ## Usage
 
+### Simple Text Sharing
 
-```jsx
-import { open } from 'react-native-share-with-social-media';
+```typescript
+import { open, SOCIAL_MEDIA } from 'react-native-share-with-social-media';
 
-// Open a specific app with a message
-open('whatsapp', 'This is business')
+// Share a simple message via WhatsApp
+open(SOCIAL_MEDIA.WHATSAPP, 'Hello from my app!')
   .then(() => console.log('Shared successfully'))
   .catch((error) => console.log('Error sharing:', error));
+```
+
+### Instagram Stories (with Link Sticker)
+
+The `shareStory` method allows you to share a background image with an optional link sticker and custom background colors.
+
+```typescript
+import { shareStory } from 'react-native-share-with-social-media';
+
+shareStory({
+  backgroundImage: 'file:///path/to/local/image.jpg',
+  attributionLink: 'https://example.com', // Optional Link Sticker
+  backgroundTopColor: '#3498db',         // Optional
+  backgroundBottomColor: '#2c3e50',      // Optional
+})
+  .then(() => console.log('Story opened'))
+  .catch((e) => console.error(e));
 ```
 
 ## Setup
 
 ### iOS
 
-```bash
-cd ios/ && pod install
-```
-
-Add the following to your `Info.plist` file to enable URL schemes for different social media apps:
+1.  **URL Schemes**: Add the following to your `Info.plist` to enable sharing to different apps:
 
 ```xml
 <key>LSApplicationQueriesSchemes</key>
 <array>
   <string>whatsapp</string>
   <string>instagram</string>
+  <string>instagram-stories</string>
   <string>twitter</string>
   <string>snapchat</string>
   <string>tg</string>
 </array>
 ```
 
+2.  **Pod Install**:
+```bash
+cd ios/ && pod install
+```
+
 ### Android
 
-Add the following queries to your `AndroidManifest.xml` file inside the `<manifest>` tag:
+1.  **Queries**: Add the following to your `AndroidManifest.xml` (inside the `<manifest>` tag):
 
 ```xml
 <queries>
@@ -57,26 +78,27 @@ Add the following queries to your `AndroidManifest.xml` file inside the `<manife
   <package android:name="com.snapchat.android" />
   <package android:name="com.instagram.android" />
   <package android:name="org.telegram.messenger" />
+  <intent>
+      <action android:name="com.instagram.share.ADD_TO_STORY" />
+      <data android:mimeType="image/*" />
+  </intent>
 </queries>
 ```
 
+2.  **FileProvider**: Ensure the library has permission to share local files. The library includes a default FileProvider with the authority `${applicationId}.fileprovider`. No additional setup is usually required for standard file paths.
 
-## Contributing
+## Constants
 
-- [Development workflow](CONTRIBUTING.md#development-workflow)
-- [Sending a pull request](CONTRIBUTING.md#sending-a-pull-request)
-- [Code of conduct](CODE_OF_CONDUCT.md)
-
-## Support
-
-Encountered an issue or have a question? Feel free to [open an issue](https://github.com/yourusername/react-native-share-with-social-media/issues) on GitHub. 
-
-Have an idea for a new feature or want to contribute to this project? I'm always open to learning and implementing new things! Open a ticket to discuss your ideas or submit a pull request.
+### `SOCIAL_MEDIA`
+| Constant | Value |
+| --- | --- |
+| `SOCIAL_MEDIA.WHATSAPP` | `'whatsapp'` |
+| `SOCIAL_MEDIA.INSTAGRAM_DM` | `'instagramDm'` |
+| `SOCIAL_MEDIA.INSTAGRAM_STORIES` | `'instagramStories'` |
+| `SOCIAL_MEDIA.TELEGRAM` | `'telegram'` |
+| `SOCIAL_MEDIA.SNAPCHAT` | `'snapchat'` |
+| `SOCIAL_MEDIA.SMS` | `'sms'` |
 
 ## License
 
 MIT
-
----
-
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
