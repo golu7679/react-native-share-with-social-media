@@ -226,14 +226,10 @@ public class ShareWithSocialMediax: NSObject {
               completion(data)
           }.resume()
       } else {
+          // Hand Instagram the file's own bytes. Decoding to UIImage and re-encoding
+          // as PNG only inflates a JPEG towards the pasteboard size limit.
           let cleanPath = path.replacingOccurrences(of: "file://", with: "")
-          if FileManager.default.fileExists(atPath: cleanPath) {
-              if let image = UIImage(contentsOfFile: cleanPath) {
-                  completion(image.pngData())
-                  return
-              }
-          }
-          completion(nil)
+          completion(try? Data(contentsOf: URL(fileURLWithPath: cleanPath)))
       }
   }
 

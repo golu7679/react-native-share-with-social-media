@@ -11,7 +11,7 @@ import {
   open,
   shareStory,
   SOCIAL_MEDIA,
-  type SocialMediaType,
+  type OpenTarget,
 } from 'react-native-share-with-social-media';
 
 const SocialButton = ({
@@ -33,7 +33,7 @@ const SocialButton = ({
 );
 
 export default function App() {
-  const handleShare = (platform: SocialMediaType) => {
+  const handleShare = (platform: OpenTarget) => {
     open(platform, 'Check this out: https://github.com/golu7679').catch((e) => {
       console.log('Error sharing:', e);
       Alert.alert('Sharing Error', e.message);
