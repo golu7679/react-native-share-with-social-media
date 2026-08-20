@@ -12,6 +12,18 @@ RCT_EXPORT_MODULE()
   [[ShareWithSocialMediax new] openWithType:type text:text resolve:resolve reject:reject];
 }
 
+- (void) shareStory:(JS::NativeShareWithSocialMedia::StoryOptions &)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+  NSDictionary *optionsDict = @{
+    @"backgroundImage": options.backgroundImage() ?: @"",
+    @"stickerImage": options.stickerImage() ?: @"",
+    @"attributionLink": options.attributionLink() ?: @"",
+    @"facebookAppId": options.facebookAppId() ?: @"",
+    @"backgroundTopColor": options.backgroundTopColor() ?: @"",
+    @"backgroundBottomColor": options.backgroundBottomColor() ?: @""
+  };
+  [[ShareWithSocialMediax new] shareStoryWithOptions:optionsDict resolve:resolve reject:reject];
+}
+
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
 (const facebook::react::ObjCTurboModule::InitParams &)params
 {
